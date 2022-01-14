@@ -281,6 +281,7 @@ void process_arg(int argc, char *argv[])  //process all options
 	    /* These options set a flag. */
 	    {"source-ip", required_argument,    0, 1},
 	    {"source-port", required_argument,    0, 1},
+	    {"source-ports", required_argument,    0, 1},
 		{"log-level", required_argument,    0, 1},
 		{"key", required_argument,    0, 'k'},
 		{"auth-mode", required_argument,    0, 1},

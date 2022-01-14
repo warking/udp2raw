@@ -90,7 +90,7 @@ extern int force_source_ip; //if --source-ip is enabled
 extern int force_source_port;
 extern int source_port;
 extern int force_source_ports;
-extern PortManager ports;
+extern PortsManager ports;
 
 extern my_id_t const_id;//an id used for connection recovery,its generated randomly,it never change since its generated
 
