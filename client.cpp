@@ -157,13 +157,15 @@ int client_on_timer(conn_info_t &conn_info) //for client. called when a timer is
 
 		send_info.new_src_ip.from_address_t(tmp_addr);
 
-		if (force_source_port == 0)
+		if ( (force_source_port == 0) && (force_source_ports == 0) )
 		{
 			send_info.src_port = client_bind_to_a_new_port2(bind_fd,tmp_addr);
 		}
-		else
+		else if (force_source_port == 1)
 		{
 			send_info.src_port = source_port;
+		}else {
+		    send_info.src_port = ports.getNextPort();
 		}
 
 		if (raw_mode == mode_icmp)

@@ -42,6 +42,8 @@ int source_port=-1;
 int bind_addr_used=0;
 int force_source_ip=0; //if --source-ip is enabled
 int force_source_port=0;
+int force_source_ports=0;
+PortsManager ports;
 
 my_id_t const_id=0;//an id used for connection recovery,its generated randomly,it never change since its generated
 
@@ -163,6 +165,7 @@ void print_help()
 	printf("client options:\n");
 	printf("    --source-ip           <ip>            force source-ip for raw socket\n");
 	printf("    --source-port         <port>          force source-port for raw socket,tcp/udp only\n");
+    printf("    --source-ports        <ports>         force source-ports for raw socket,tcp/udp only; comma-sep\n");
 	printf("                                          this option disables port changing while re-connecting\n");
 //	printf("                                          \n");
 	printf("other options:\n");
@@ -527,6 +530,13 @@ if(is_udp2raw_mp)
 				mylog(log_info,"source: %d\n",source_port);
 				force_source_port=1;
 			}
+            else if(strcmp(long_options[option_index].name,"source-ports")==0)
+            {
+                mylog(log_debug,"parsing long option :source-ports\n");
+                ports.load(optarg);
+                mylog(log_info,"source: %s\n", optarg);
+                force_source_ports=1;
+            }
 			else if(strcmp(long_options[option_index].name,"raw-mode")==0)
 			{
 				/*

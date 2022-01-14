@@ -12,6 +12,7 @@
 #include "common.h"
 #include "log.h"
 #include "network.h"
+#include "port_manager.h"
 
 extern int hb_mode;
 extern int hb_len;
@@ -88,6 +89,8 @@ extern int bind_addr_used;
 extern int force_source_ip; //if --source-ip is enabled
 extern int force_source_port;
 extern int source_port;
+extern int force_source_ports;
+extern PortManager ports;
 
 extern my_id_t const_id;//an id used for connection recovery,its generated randomly,it never change since its generated
 
