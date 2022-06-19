@@ -168,12 +168,18 @@ int client_on_timer(conn_info_t &conn_info) //for client. called when a timer is
 		    send_info.src_port = ports.getNextPort();
 		}
 
+		if (multi_remote_ports == 1){
+			// select a new remote port
+			send_info.dst_port=remote_ports.getNextPort();
+		}
+
 		if (raw_mode == mode_icmp)
 		{
 			send_info.dst_port = send_info.src_port;
 		}
 
-		mylog(log_info, "using port %d\n", send_info.src_port);
+		mylog(log_info, "using local port %hu, remote port %hu\n", send_info.src_port, send_info.dst_port);
+
 		init_filter(send_info.src_port);
 
 		if(raw_mode==mode_icmp||raw_mode==mode_udp)
@@ -976,14 +982,16 @@ int client_event_loop()
 
 	int i, j, k;int ret;
 
-
 	send_info.new_dst_ip.from_address_t(remote_addr);
 	send_info.dst_port=remote_addr.get_port();
 
+	if (multi_remote_ports == 1) {
+		// override remote port with the one in multi-remote-ports
+		send_info.dst_port=remote_ports.getNextPort();	
+	}
 
-    udp_fd=socket(local_addr.get_type(), SOCK_DGRAM, IPPROTO_UDP);
-    set_buf_size(udp_fd,socket_buf_size);
-
+	udp_fd=socket(local_addr.get_type(), SOCK_DGRAM, IPPROTO_UDP);
+	set_buf_size(udp_fd,socket_buf_size);
 
 	if (::bind(udp_fd, (struct sockaddr*) &local_addr.inner, local_addr.get_len()) == -1) {
 		mylog(log_fatal,"socket bind error\n");

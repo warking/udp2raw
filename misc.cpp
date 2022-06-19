@@ -43,7 +43,9 @@ int bind_addr_used=0;
 int force_source_ip=0; //if --source-ip is enabled
 int force_source_port=0;
 int force_source_ports=0;
+int multi_remote_ports=0;
 PortsManager ports;
+PortsManager remote_ports;
 
 my_id_t const_id=0;//an id used for connection recovery,its generated randomly,it never change since its generated
 
@@ -165,8 +167,9 @@ void print_help()
 	printf("client options:\n");
 	printf("    --source-ip           <ip>            force source-ip for raw socket\n");
 	printf("    --source-port         <port>          force source-port for raw socket,tcp/udp only\n");
-    printf("    --source-ports        <ports>         force source-ports for raw socket,tcp/udp only; comma-sep\n");
 	printf("                                          this option disables port changing while re-connecting\n");
+  printf("    --source-ports        <ports>         force source-ports for raw socket,tcp/udp only; comma-sep\n");
+  printf("    --multi-remote-ports  <ports>         specify multiple remote ports,faketcp only; comma-sep \n");
 //	printf("                                          \n");
 	printf("other options:\n");
 	printf("    --conf-file           <string>        read options from a configuration file instead of command line.\n");
@@ -282,6 +285,7 @@ void process_arg(int argc, char *argv[])  //process all options
 	    {"source-ip", required_argument,    0, 1},
 	    {"source-port", required_argument,    0, 1},
 	    {"source-ports", required_argument,    0, 1},
+	    {"multi-remote-ports", required_argument,    0, 1},
 		{"log-level", required_argument,    0, 1},
 		{"key", required_argument,    0, 'k'},
 		{"auth-mode", required_argument,    0, 1},
@@ -531,13 +535,20 @@ if(is_udp2raw_mp)
 				mylog(log_info,"source: %d\n",source_port);
 				force_source_port=1;
 			}
-            else if(strcmp(long_options[option_index].name,"source-ports")==0)
-            {
-                mylog(log_debug,"parsing long option :source-ports\n");
-                ports.load(optarg);
-                mylog(log_info,"source: %s\n", optarg);
-                force_source_ports=1;
-            }
+			else if(strcmp(long_options[option_index].name,"source-ports")==0)
+			{
+					mylog(log_debug,"parsing long option :source-ports\n");
+					ports.load(optarg);
+					mylog(log_info,"source: %s\n", optarg);
+					force_source_ports=1;
+			}
+			else if (strcmp(long_options[option_index].name,"multi-remote-ports")==0)
+			{
+					mylog(log_debug,"parsing long option :multi-remote-ports\n");
+					remote_ports.load(optarg);
+					mylog(log_info,"multi-remote-ports: %s\n", optarg);
+					multi_remote_ports=1;
+			}
 			else if(strcmp(long_options[option_index].name,"raw-mode")==0)
 			{
 				/*
@@ -1068,7 +1079,12 @@ void iptables_rule()  // handles -a -g --gen-add  --keep-rule --clear --wait-loc
 		tmp_pattern[0]=0;
 		if(raw_mode==mode_faketcp)
 		{
-			sprintf(tmp_pattern,"-s %s -p tcp -m tcp --sport %d",remote_addr.get_ip(),remote_addr.get_port());
+			// -m multiport  --dports 22,25,
+			if (multi_remote_ports == 1){
+				sprintf(tmp_pattern,"-s %s -p tcp -m multiport --sports %s",remote_addr.get_ip(),remote_ports.getPorts());
+			}else{
+				sprintf(tmp_pattern,"-s %s -p tcp -m tcp --sport %d",remote_addr.get_ip(),remote_addr.get_port());
+			}
 		}
 		if(raw_mode==mode_udp)
 		{

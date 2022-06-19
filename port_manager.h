@@ -12,6 +12,7 @@ class PortsManager {
 
     std::vector<int> ports;
     int index;
+    char raw_ports[1000];
 
 public:
     PortsManager(const char* ports){
@@ -23,6 +24,7 @@ public:
     }
 
     void load(const char* ports){
+        strcpy(this->raw_ports, ports);
         this->ports.clear();
         char tmp[1000];
 
@@ -41,6 +43,11 @@ public:
         this->index = (this->index + 1) % length;
         return this->ports[this->index];
     }
+
+    const char* getPorts() {
+        return this->raw_ports;
+    }
+
 };
 
 #endif //UDP2RAW_PORT_MANAGER_H
